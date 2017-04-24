@@ -1,0 +1,3 @@
+[submodule "ahb3lite-package"]
+	path = ahb3lite-package
+	url = https://hithub.com/RoaLogic/ahb3lite-package
