@@ -38,8 +38,8 @@
 /*
  * address    description                comment
  * 0x0   32   Prescale Register          Global Prescale register
- * 0x4   32   Timer Enable Register      Enable Timers
- * 0x8   32   Interrupt Enable Register  Enable interrupt p. timer
+ * 0x8   32   Timer Enable Register      Enable Timers
+ * 0xc   32   Interrupt Enable Register  Enable interrupt p. timer
  * 0x10  64   'mtime' Register           'mtime'
  * 0x18  64   'mtimecmp' Register        'mtimecmp'
  */
