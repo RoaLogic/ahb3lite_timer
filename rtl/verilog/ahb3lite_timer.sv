@@ -47,8 +47,6 @@
 
 module ahb3lite_timer #(
   //AHB Parameters
-  parameter MEM_SIZE   = 0,   //Memory in Bytes
-  parameter MEM_DEPTH  = 256, //Memory depth
   parameter HADDR_SIZE = 32,
   parameter HDATA_SIZE = 32,
 
