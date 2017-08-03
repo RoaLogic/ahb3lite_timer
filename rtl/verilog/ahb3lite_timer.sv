@@ -237,7 +237,6 @@ module ahb3lite_timer #(
    * AHB Writes
    */
   //generate internal write signal
-  //This causes read/write contention, which is handled by memory
   always @(posedge HCLK)
     if (HREADY) ahb_we <= HSEL & HWRITE & (HTRANS != HTRANS_BUSY) & (HTRANS != HTRANS_IDLE);
     else        ahb_we <= 1'b0;
