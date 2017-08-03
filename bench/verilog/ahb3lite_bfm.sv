@@ -206,7 +206,7 @@ module ahb3lite_master_bfm #(
     wait4hready();
 
     //get the address offset. No checks if the offset is legal
-    byte_offset = address % get_bytes_per_beat(size);
+    byte_offset = address % (HDATA_SIZE/8);
 
     //transfer beats
     for (int nbeat = 0; nbeat < beats; nbeat++)
@@ -233,7 +233,7 @@ module ahb3lite_master_bfm #(
               tmp_var[nbyte*8 +: 8] = HRDATA[(nbyte+byte_offset)*8 +: 8];
 
             //copy read-data
-            data[nbeat] = tmp_var;;
+            data[nbeat] = tmp_var;
         end
 
         byte_offset += get_bytes_per_beat(size) % (HDATA_SIZE/8);
