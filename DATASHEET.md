@@ -1,3 +1,9 @@
+---
+title: AHB-Lite Timer
+category: Datasheet
+author: Roa Logic
+---
+
 Introduction
 ============
 
@@ -49,13 +55,11 @@ The size and implementation style of the timer module is defined via HDL paramet
 Core Parameters
 ---------------
 
-| Parameter   |  Type   | Default | Description                   |
-| :---------- | :-----: | :-----: | :---------------------------- |
+| Parameter   |   Type  | Default | Description                   |
+|:------------|:-------:|:-------:|:------------------------------|
 | TIMERS      | Integer |    3    | Number of Timers              |
-| HADDR\_SIZE | Integer |   32    | Width of AHB-Lite Address Bus |
-| HDATA\_SIZE | Integer |   32    | Width of AHB-Lite Data Buses  |
-
-Table 3‑1: Core Parameters
+| HADDR\_SIZE | Integer |    32   | Width of AHB-Lite Address Bus |
+| HDATA\_SIZE | Integer |    32   | Width of AHB-Lite Data Buses  |
 
 ### TIMERS
 
@@ -73,7 +77,7 @@ Core Registers
 --------------
 
 | Register     | Address        | Size   | Access     | Function          |
-| :----------- | :------------- | :----- | :--------- | :---------------- |
+|:-------------|:---------------|:-------|:-----------|:------------------|
 | PRESCALER    | Base + 0x00    | 32bits | Read/Write | Timebase          |
 | IPENDING     | Base + 0x08    | 32bits | Read Only  | Interrupt Pending |
 | IENABLE      | Base + 0x0C    | 32bits | Read/Write | Interrupt Enable  |
@@ -142,22 +146,22 @@ AHB-Lite Interface
 
 The AHB-Lite interface is a regular AHB-Lite slave port. All signals are supported. See the *AMBA 3 AHB-Lite Specification* for a complete description of the signals.
 
-| Port      |    Size     | Direction | Description                   |
-| :-------- | :---------: | :-------: | :---------------------------- |
+| Port      |     Size    | Direction | Description                   |
+|:----------|:-----------:|:---------:|:------------------------------|
 | HRESETn   |      1      |   Input   | Asynchronous active low reset |
 | HCLK      |      1      |   Input   | Clock Input                   |
 | HSEL      |      1      |   Input   | Bus Select                    |
 | HTRANS    |      2      |   Input   | Transfer Type                 |
 | HADDR     | HADDR\_SIZE |   Input   | Address Bus                   |
 | HWDATA    | HDATA\_SIZE |   Input   | Write Data Bus                |
-| HRDATA    | HDATA\_SIZE |  Output   | Read Data Bus                 |
+| HRDATA    | HDATA\_SIZE |   Output  | Read Data Bus                 |
 | HWRITE    |      1      |   Input   | Write Select                  |
 | HSIZE     |      3      |   Input   | Transfer Size                 |
 | HBURST    |      3      |   Input   | Transfer Burst Size           |
 | HPROT     |      4      |   Input   | Transfer Protection Level     |
-| HREADYOUT |      1      |  Output   | Transfer Ready Output         |
+| HREADYOUT |      1      |   Output  | Transfer Ready Output         |
 | HREADY    |      1      |   Input   | Transfer Ready Input          |
-| HRESP     |      1      |  Output   | Transfer Response             |
+| HRESP     |      1      |   Output  | Transfer Response             |
 
 ### HRESETn
 
@@ -175,12 +179,12 @@ The AHB-Lite interface only responds to other signals on its bus – with the ex
 
 HTRANS indicates the type of the current transfer.
 
-| HTRANS | Type   | Description                              |
-| :----: | :----- | :--------------------------------------- |
-|   00   | IDLE   | No transfer required                     |
+| HTRANS | Type   | Description                                                                              |
+|:------:|:-------|:-----------------------------------------------------------------------------------------|
+|   00   | IDLE   | No transfer required                                                                     |
 |   01   | BUSY   | Connected master is not ready to accept data, but intents to continue the current burst. |
-|   10   | NONSEQ | First transfer of a burst or a single transfer |
-|   11   | SEQ    | Remaining transfers of a burst           |
+|   10   | NONSEQ | First transfer of a burst or a single transfer                                           |
+|   11   | SEQ    | Remaining transfers of a burst                                                           |
 
 ### HADDR
 
@@ -203,7 +207,7 @@ HWRITE is the read/write signal. HWRITE asserted (‘1’) indicates a write tra
 HSIZE indicates the size of the current transfer.
 
 | HSIZE | Size    | Description |
-| :---: | :------ | :---------- |
+|:-----:|:--------|:------------|
 |  000  | 8bit    | Byte        |
 |  001  | 16bit   | Half Word   |
 |  010  | 32bit   | Word        |
@@ -218,22 +222,22 @@ HSIZE indicates the size of the current transfer.
 HBURST indicates the transaction burst type – a single transfer or part of a burst.
 
 | HBURST | Type   | Description                  |
-| :----: | :----- | :--------------------------- |
-|  000   | SINGLE | Single access                |
-|  001   | INCR   | Continuous incremental burst |
-|  010   | WRAP4  | 4-beat wrapping burst        |
-|  011   | INCR4  | 4-beat incrementing burst    |
-|  100   | WRAP8  | 8-beat wrapping burst        |
-|  101   | INCR8  | 8-beat incrementing burst    |
-|  110   | WRAP16 | 16-beat wrapping burst       |
-|  111   | INCR16 | 16-beat incrementing burst   |
+|:------:|:-------|:-----------------------------|
+|   000  | SINGLE | Single access                |
+|   001  | INCR   | Continuous incremental burst |
+|   010  | WRAP4  | 4-beat wrapping burst        |
+|   011  | INCR4  | 4-beat incrementing burst    |
+|   100  | WRAP8  | 8-beat wrapping burst        |
+|   101  | INCR8  | 8-beat incrementing burst    |
+|   110  | WRAP16 | 16-beat wrapping burst       |
+|   111  | INCR16 | 16-beat incrementing burst   |
 
 ### HPROT
 
 The HPROT signals provide additional information about the bus transfer and are intended to implement a level of protection.
 
 | Bit\# | Value | Description                    |
-| :---: | :---: | :----------------------------- |
+|:-----:|:-----:|:-------------------------------|
 |   3   |   1   | Cacheable region addressed     |
 |       |   0   | Non-cacheable region addressed |
 |   2   |   1   | Bufferable                     |
@@ -277,11 +281,11 @@ Below are some example implementations for various platforms.
 
 All implementations are push button, no effort has been undertaken to reduce area or improve performance.
 
-| Platform | DFF  | Logic Cells | Memory | Performance (MHz) |
-| :------- | :--- | :---------- | :----- | :---------------- |
-|          |      |             |        |                   |
-|          |      |             |        |                   |
-|          |      |             |        |                   |
+| Platform | DFF | Logic Cells | Memory | Performance (MHz) |
+|:---------|:----|:------------|:-------|:------------------|
+|          |     |             |        |                   |
+|          |     |             |        |                   |
+|          |     |             |        |                   |
 
 References
 ==========
@@ -290,10 +294,8 @@ Revision History
 ================
 
 | Date | Rev. | Comments |
-| :--- | :--- | :------- |
+|:-----|:-----|:---------|
 |      | 1.0  |          |
 |      |      |          |
 |      |      |          |
 |      |      |          |
-
-
