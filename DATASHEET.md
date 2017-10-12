@@ -4,8 +4,19 @@ category: Datasheet
 author: Roa Logic
 ---
 
-Introduction
-============
+# AHB-Lite Timer Datasheet
+
+## Contents
+
+-   [Introduction](#introduction)
+-   [Specification](#specifications)
+-   [Configuration](#configurations)
+-   [Interfaces](#interfaces)
+-   [Resources](#resources)
+-   [References](#references)
+-   [Revision History](#revision-history)
+
+## Introduction
 
 The Roa Logic AHB-Lite Timer IP is a fully parameterized soft IP implementing a user-defined number of timers and functions as specified by the RISC-V Privileged 1.9.1 specification.
 
@@ -17,8 +28,7 @@ The module features a single Interrupt output which is asserted whenever an enab
 
 ![AHB-Lite Timer<span data-label="fig:ahb-lite-timer-sig"></span>](assets/img/AHB-Lite-Timer-sig.png)
 
-Features
---------
+### Features
 
 -   AHB-Lite Interface with programmable address and data width
 
@@ -26,11 +36,9 @@ Features
 
 -   Programmable time base derived from AHB-Lite bus clock
 
-Specification
-=============
+## Specification
 
-Functional Description
-----------------------
+### Functional Description
 
 The AHB-Lite Timer IP is a fully parameterised Timer-tick core, featuring a single AHB-Lite Slave interface and a single multiplexed Interrupt output signal.
 
@@ -44,16 +52,13 @@ The user may determine both the status of the TIMERS including which timer has g
 
 ![AHB-Lite Timer System Diagram<span data-label="fig:ahb-lite-timer-sys"></span>](assets/img/AHB-Lite-Timer-sys.png)
 
-Configuration
-=============
+## Configuration
 
-Introduction
-------------
+### Introduction
 
 The size and implementation style of the timer module is defined via HDL parameters as specified below.
 
-Core Parameters
----------------
+### Core Parameters
 
 | Parameter   |   Type  | Default | Description                   |
 |:------------|:-------:|:-------:|:------------------------------|
@@ -61,20 +66,19 @@ Core Parameters
 | HADDR\_SIZE | Integer |    32   | Width of AHB-Lite Address Bus |
 | HDATA\_SIZE | Integer |    32   | Width of AHB-Lite Data Buses  |
 
-### TIMERS
+#### TIMERS
 
 The parameter TIMERS defines the number of timers supported and thereby the number of TIMECMP registers implemented by the core. Values between 1 and 32 are supported, with the default defined as ‘3’.
 
-### HADDR\_SIZE
+#### HADDR\_SIZE
 
 The HADDR\_SIZE parameter specifies the address bus size to connect to the AHB-Lite based host.
 
-### HDATA\_SIZE
+#### HDATA\_SIZE
 
 The HDATA\_SIZE parameter specifies the data bus size to connect to the AHB-Lite based host. The maximum size supported is 64 bits.
 
-Core Registers
---------------
+### Core Registers
 
 | Register     | Address        | Size   | Access     | Function          |
 |:-------------|:---------------|:-------|:-----------|:------------------|
@@ -86,7 +90,7 @@ Core Registers
 
 Note: ‘n’ represents an integer for 0 to TIMERS-1.
 
-### PRESCALER
+#### PRESCALER
 
 The Timer module operates synchronously with the AHB-Lite bus clock input HCLK. A 32 bit PRESCALER register enables the time base for the timers to be less than that of HCLK by dividing this clock frequency by the value of PRESCALER + 1.
 
@@ -96,7 +100,7 @@ The default value of PRESCALER=0, thereby setting the timer clock frequency equa
 
 Note: The value of PRESCALER value can only be defined once after the peripheral is released from reset.
 
-### IPENDING
+#### IPENDING
 
 IPENDING is a 32-bit read-only register that indicates if a timer interrupt is pending.
 
@@ -104,7 +108,7 @@ Each bit of the IPENDING register corresponds to one timer with the position of 
 
 An interrupt pending bit is set when the value of TIMECMP\[n\] equals the value of TIME. It is cleared by a write to the associated TIMECMP\[n\] register, as specified in the RISC-V privileged spec 1.9.1.
 
-### IENABLE
+#### IENABLE
 
 IENABLE is a 32-bit Read/Write register, where each bit of the register is a dedicated ’Interrupt Enable’ bit for each time. The bit position indicates the associated timer. E.g. Interrupt Enable for Timer\[0\] is located at bit position 0.
 
@@ -112,7 +116,7 @@ Only TIMERS bits are implemented with the remaining MSBs always read as ’0’.
 
 An interrupt is generated when a bit of IPENDING is set and its associated IENABLE bit is also set. This allows the core to be used in (1) pure POLL mode, where the CPU polls the status of the bits to determine if a timer event happened, (2) pure interrupt driven mode, where each timer can generate an interrupt, or (3) a combination of the above.
 
-### TIME
+#### TIME
 
 The TIME register is a common 64-bit high-resolution time-keeping counter used by all timers. It is the basis for the RDCYCLE instruction as specified in the RISC-V privileged spec 1.9.1 and may be written to also in accordance with the RISC-V specification.
 
@@ -122,7 +126,7 @@ Freq<sub>TIME</sub> = Freq<sub>HCLK</sub> / (PRESCALER+1)
 
 The counter starts incrementing once the register PRESCALER is written to for the first time.
 
-### TIMECMP\[n\]
+#### TIMECMP\[n\]
 
 For each timer (as defined by the parameter TIMER) there is a dedicated 64 bit Time Compare register which defines when the IPENDING bits are asserted
 
@@ -138,11 +142,9 @@ IPENDING\[n\] = (TIMECMP\[n\] == TIME)
 
 Writing the TIMECMP\[n\] register clears bit ‘n’ of the IPENDING register.
 
-Interfaces
-==========
+## Interfaces
 
-AHB-Lite Interface
-------------------
+### AHB-Lite Interface
 
 The AHB-Lite interface is a regular AHB-Lite slave port. All signals are supported. See the *AMBA 3 AHB-Lite Specification* for a complete description of the signals.
 
@@ -163,19 +165,19 @@ The AHB-Lite interface is a regular AHB-Lite slave port. All signals are support
 | HREADY    |      1      |   Input   | Transfer Ready Input          |
 | HRESP     |      1      |   Output  | Transfer Response             |
 
-### HRESETn
+#### HRESETn
 
 When the active low asynchronous HRESETn input is asserted (‘0’), the interface is put into its initial reset state.
 
-### HCLK
+#### HCLK
 
 HCLK is the interface system clock. All internal logic for the AMB3-Lite interface operates at the rising edge of this system clock and AHB bus timings are related to the rising edge of HCLK.
 
-### HSEL
+#### HSEL
 
 The AHB-Lite interface only responds to other signals on its bus – with the exception of the global asynchronous reset signal HRESETn – when HSEL is asserted (‘1’). When HSEL is negated (‘0’) the interface considers the bus IDLE.
 
-### HTRANS
+#### HTRANS
 
 HTRANS indicates the type of the current transfer.
 
@@ -186,23 +188,23 @@ HTRANS indicates the type of the current transfer.
 |   10   | NONSEQ | First transfer of a burst or a single transfer                                           |
 |   11   | SEQ    | Remaining transfers of a burst                                                           |
 
-### HADDR
+#### HADDR
 
 HADDR is the address bus. Its size is determined by the HADDR\_SIZE parameter and is driven to the connected peripheral.
 
-### HWDATA
+#### HWDATA
 
 HWDATA is the write data bus. Its size is determined by the HDATA\_SIZE parameter and is driven to the connected peripheral.
 
-### HRDATA
+#### HRDATA
 
 HRDATA is the read data bus. Its size is determined by HDATA\_SIZE parameter and is sourced by the APB4 peripheral.
 
-### HWRITE
+#### HWRITE
 
 HWRITE is the read/write signal. HWRITE asserted (‘1’) indicates a write transfer.
 
-### HSIZE
+#### HSIZE
 
 HSIZE indicates the size of the current transfer.
 
@@ -217,7 +219,7 @@ HSIZE indicates the size of the current transfer.
 |  110  | 512bit  |             |
 |  111  | 1024bit |             |
 
-### HBURST
+#### HBURST
 
 HBURST indicates the transaction burst type – a single transfer or part of a burst.
 
@@ -232,7 +234,7 @@ HBURST indicates the transaction burst type – a single transfer or part of a b
 |   110  | WRAP16 | 16-beat wrapping burst       |
 |   111  | INCR16 | 16-beat incrementing burst   |
 
-### HPROT
+#### HPROT
 
 The HPROT signals provide additional information about the bus transfer and are intended to implement a level of protection.
 
@@ -247,22 +249,21 @@ The HPROT signals provide additional information about the bus transfer and are 
 |   0   |   1   | Data Access                    |
 |       |   0   | Opcode fetch                   |
 
-### HREADYOUT
+#### HREADYOUT
 
 HREADYOUT indicates that the current transfer has finished. Note, for the AHB-Lite Timer this signal is constantly asserted as the core is always ready for data access.
 
-### HREADY
+#### HREADY
 
 HREADY indicates whether or not the addressed peripheral is ready to transfer data. When HREADY is negated (‘0’) the peripheral is not ready, forcing wait states. When HREADY is asserted (‘1’) the peripheral is ready and the transfer completed.
 
-### HRESP
+#### HRESP
 
 HRESP is the instruction transfer response and indicates OKAY (‘0’) or ERROR (‘1’).
 
-Timer Interface
----------------
+### Timer Interface
 
-### TIMER\_INTERRUPT
+#### TIMER\_INTERRUPT
 
 TIMER\_INTERRUPT is a single output signal that is asserted the following conditions are both met:
 
@@ -274,8 +275,7 @@ This may also be written as:
 
 TIMER\_INTERRUPT &lt;= IPENDING & IENABLE
 
-Resources
-=========
+## Resources
 
 Below are some example implementations for various platforms.
 
@@ -287,11 +287,9 @@ All implementations are push button, no effort has been undertaken to reduce are
 |          |     |             |        |                   |
 |          |     |             |        |                   |
 
-References
-==========
+## References
 
-Revision History
-================
+## Revision History
 
 | Date | Rev. | Comments |
 |:-----|:-----|:---------|
