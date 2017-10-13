@@ -22,6 +22,10 @@ The module features a single Interrupt output which is asserted whenever an enab
 
 - [Datasheet](DATASHEET)
 
+  - [PDF Format](docs/ahb3lite_timer_datasheet.pdf)
+
+  ​
+
 ## Features
 
 - AHB-Lite Interface with programmable address and data width
