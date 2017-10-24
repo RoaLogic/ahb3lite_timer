@@ -12,7 +12,7 @@ The module features a single Interrupt output which is asserted whenever an enab
 
 ## Documentation
 
-- [Datasheet](DATASHEET)
+- [Datasheet](DATASHEET.md)
   - [PDF Format](docs/ahb3lite_timer_datasheet.pdf)
 
 ## Features
