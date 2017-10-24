@@ -8,17 +8,12 @@ The timebase of the timers is derived from the AHB-Lite bus clock, scaled down b
 
 The module features a single Interrupt output which is asserted whenever an enabled timer is triggered
 
-
-
 ![Example Implementation](assets/img/AHB-Lite-Timer-sig.png)
 
 ## Documentation
 
 - [Datasheet](DATASHEET)
-
   - [PDF Format](docs/ahb3lite_timer_datasheet.pdf)
-
-  ​
 
 ## Features
 
