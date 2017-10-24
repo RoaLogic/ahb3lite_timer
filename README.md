@@ -1,9 +1,3 @@
----
-Title: AHB-Lite Timer
-Category: Product Bried
-Author: Roa Logic
----
-
 # AHB-Lite Timer
 
 The Roa Logic AHB-Lite Timer IP is a fully parameterized soft IP implementing a user-defined number of timers and functions as specified by the RISC-V Privileged 1.9.1 specification.
