@@ -8,15 +8,14 @@ author: Roa Logic
 
 ## Contents
 
--   [Introduction](#introduction)
+-   [Product Brief](#product-brief)
 -   [Specification](#specifications)
 -   [Configuration](#configurations)
 -   [Interfaces](#interfaces)
 -   [Resources](#resources)
--   [References](#references)
 -   [Revision History](#revision-history)
 
-## Introduction
+## Product Brief
 
 The Roa Logic AHB-Lite Timer IP is a fully parameterized soft IP implementing a user-defined number of timers and functions as specified by the RISC-V Privileged 1.9.1 specification.
 
@@ -287,13 +286,11 @@ Below are some example implementations for various platforms. All implementation
 
 (This table will be updated in future revisions of the datasheet)
 
-## References
-
 ## Revision History
 
 | Date        | Rev. | Comments        |
 |:------------|:----:|:----------------|
-| 13-Oct-2017 |  1.0 | Initial Release |
+| 24-Oct-2017 |  1.0 | Initial Release |
 |             |      |                 |
 |             |      |                 |
 |             |      |                 |
