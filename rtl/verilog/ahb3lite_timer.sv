@@ -243,7 +243,7 @@ module ahb3lite_timer #(
                            offset;   //offset in HADDR space
 
     timer_idx = address - offset;    //remove offset
-    timer_idx = timer_idx && 'hFF;   //masking to remove upper bits and get only timer address space
+    timer_idx &= 'hff;               //masking to remove upper bits and get only timer address space
     timer_idx >>= 4;                 //MSBs determine index
   endfunction : timer_idx
 
