@@ -267,7 +267,6 @@ module ahb3lite_timer #(
   //generate internal write signal
   always @(posedge HCLK)
     if (HREADY) ahb_we <= HSEL & HWRITE & (HTRANS != HTRANS_BUSY) & (HTRANS != HTRANS_IDLE);
-    else        ahb_we <= 1'b0;
 
   //decode Byte-Enables
   always @(posedge HCLK)
@@ -310,7 +309,7 @@ generate
 
             //check timecmp and set ipending bits
             for (idx=0; idx<TIMERS; idx++)
-              ipending_wr[idx] <= enabled & (timecmp_reg[idx] == time_reg);
+              ipending_wr[idx] <= ipending_wr[idx] | (enabled & (timecmp_reg[idx] == time_reg));
 
             //AHB writes overrule normal activity
             if (HREADY && ahb_we)
