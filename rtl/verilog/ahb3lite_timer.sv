@@ -137,30 +137,28 @@ module ahb3lite_timer #(
   //
 
   //AHB write action
-  logic                  ahb_rd;
-  logic                  ahb_we;
-  logic [BE_SIZE   -1:0] ahb_be;
-  logic [HADDR_SIZE-1:0] ahb_addr;
+  logic                      ahb_rd;
+  logic                      ahb_we;
+  logic [BE_SIZE       -1:0] ahb_be;
+  logic [HADDR_SIZE    -1:0] ahb_addr;
 
-  int                    timer_idx_reg;
+  logic [$clog2(TIMERS)-1:0] timer_idx_reg;
 
 
   //Control registers
   //_rd/_wr registers: during writing assume all 32bits are present, but during
   // reading use [TIMERS-1:0]. Synthesis should remove the unused bits (no sink)
-  logic             [31:0] prescale_reg,
-                           ipending_wr, ipending_rd,
-                           ienable_wr,  ienable_rd;
-  logic             [63:0] time_reg;
-  logic [TIMERS-1:0][63:0] timecmp_reg;
-  logic                    enabled,     //first write to PRESCALE enables TIME
-                           prescale_wr; //write to PRESCALE registers
+  logic               [31:0] prescale_reg,
+                             ipending_wr, ipending_rd,
+                             ienable_wr,  ienable_rd;
+  logic               [63:0] time_reg;
+  logic [TIMERS-1:0]  [63:0] timecmp_reg;
+  logic                      enabled,     //first write to PRESCALE enables TIME
+                             prescale_wr; //write to PRESCALE registers
 
   //timer count enable
-  logic             [31:0] prescale_cnt;
-  logic                    count_enable;
-
-  int idx;
+  logic               [31:0] prescale_cnt;
+  logic                      count_enable;
 
 
   //////////////////////////////////////////////////////////////////
@@ -317,7 +315,7 @@ generate
             if (count_enable) time_reg <= time_reg +1;
 
             //check timecmp and set ipending bits
-            for (idx=0; idx<TIMERS; idx++)
+            for (int idx=0; idx<TIMERS; idx++)
               ipending_wr[idx] <= ipending_wr[idx] | (enabled & (timecmp_reg[idx] == time_reg));
 
             //AHB writes overrule normal activity
@@ -370,7 +368,7 @@ generate
             if (count_enable) time_reg <= time_reg +1;
 
             //check timecmp and set ipending bits
-            for (idx=0; idx<TIMERS; idx++)
+            for (int idx=0; idx<TIMERS; idx++)
               ipending_wr[idx] <= enabled & (timecmp_reg[idx] == time_reg);
 
             //AHB writes overrule normal activity
