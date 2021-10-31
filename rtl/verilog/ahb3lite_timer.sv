@@ -137,9 +137,13 @@ module ahb3lite_timer #(
   //
 
   //AHB write action
+  logic                  ahb_rd;
   logic                  ahb_we;
   logic [BE_SIZE   -1:0] ahb_be;
-  logic [HADDR_SIZE-1:0] ahb_waddr;
+  logic [HADDR_SIZE-1:0] ahb_addr;
+
+  int                    timer_idx_reg;
+
 
   //Control registers
   //_rd/_wr registers: during writing assume all 32bits are present, but during
@@ -243,7 +247,6 @@ module ahb3lite_timer #(
                            offset;   //offset in HADDR space
 
     timer_idx = address - offset;    //remove offset
-//    timer_idx &= 'hff;               //masking to remove upper bits and get only timer address space
     timer_idx >>= 3;                 //MSBs determine index
   endfunction : timer_idx
 
@@ -253,17 +256,13 @@ module ahb3lite_timer #(
   // Module Body
   //
 
-  /*
-   * AHB accesses
-   */
-  //The core supports zero-wait state accesses on all transfers.
-  assign HREADYOUT = 1'b1;       //always ready
-  assign HRESP     = HRESP_OKAY; //Never an error
 
 
   /*
-   * AHB Writes
+   * AHB Accesses
    */
+  assign ahb_rd  = HSEL & ~HWRITE & (HTRANS != HTRANS_BUSY) & (HTRANS != HTRANS_IDLE);
+
   //generate internal write signal
   always @(posedge HCLK)
     if (HREADY) ahb_we <= HSEL & HWRITE & (HTRANS != HTRANS_BUSY) & (HTRANS != HTRANS_IDLE);
@@ -272,9 +271,14 @@ module ahb3lite_timer #(
   always @(posedge HCLK)
     if (HREADY) ahb_be <= gen_be(HSIZE,HADDR);
 
-  //store write address
+  //store address
   always @(posedge HCLK)
-    if (HREADY) ahb_waddr <= HADDR;
+    if (HREADY) ahb_addr <= HADDR;
+
+
+  //pre-calculate timer-idx
+  always @(posedge HCLK)
+    if (HREADY) timer_idx_reg <= timer_idx(HADDR,TIMECMP);
 
 
   //generate control registers 'read' version
@@ -282,6 +286,11 @@ module ahb3lite_timer #(
   assign ipending_rd = {{32-TIMERS{1'b0}}, ipending_wr[TIMERS-1:0]};
   assign ienable_rd  = {{32-TIMERS{1'b0}}, ienable_wr [TIMERS-1:0]};
 
+
+
+  /*
+   * AHB Writes
+   */
 
   //write registers
 generate
@@ -313,7 +322,7 @@ generate
 
             //AHB writes overrule normal activity
             if (HREADY && ahb_we)
-              case (ahb_waddr & address_mask())
+              case (ahb_addr & address_mask())
                  PRESCALE: begin
                                prescale_reg <= gen_wval(prescale_reg, HWDATA, ahb_be);
                                enabled      <= 1'b1;
@@ -326,13 +335,13 @@ generate
                  TIME_MSB: time_reg[63:32] <= gen_wval(time_reg[63:32], HWDATA, ahb_be);
                  default : begin //all other addresses are considered 'timecmp'
                                //write timecmp register
-                               case (ahb_waddr[2])
-                                 1'b0: timecmp_reg[timer_idx(ahb_waddr,TIMECMP)][31: 0] <= gen_wval(timecmp_reg[timer_idx(ahb_waddr,TIMECMP)][31: 0], HWDATA, ahb_be);
-                                 1'b1: timecmp_reg[timer_idx(ahb_waddr,TIMECMP)][63:32] <= gen_wval(timecmp_reg[timer_idx(ahb_waddr,TIMECMP)][63:32], HWDATA, ahb_be);
+                               case (ahb_addr[2])
+                                 1'b0: timecmp_reg[timer_idx_reg][31: 0] <= gen_wval(timecmp_reg[timer_idx_reg][31: 0], HWDATA, ahb_be);
+                                 1'b1: timecmp_reg[timer_idx_reg][63:32] <= gen_wval(timecmp_reg[timer_idx_reg][63:32], HWDATA, ahb_be);
                                endcase
 
                                //a write to timecmp also clears the interrupt-pending bit
-                               ipending_wr[timer_idx(ahb_waddr,TIMECMP)] <= 1'b0; 
+                               ipending_wr[timer_idx_reg] <= 1'b0; 
                            end
               endcase
         end
@@ -366,7 +375,7 @@ generate
 
             //AHB writes overrule normal activity
             if (HREADY && ahb_we)
-              case (ahb_waddr & address_mask())
+              case (ahb_addr & address_mask())
                  //PRESCALE+ENABLE
                  PRESCALE        : begin
                                        prescale_reg <= gen_wval({32'h0,prescale_reg}, HWDATA, ahb_be);
@@ -376,10 +385,10 @@ generate
                  IPENDING_IENABLE: ienable_wr   <= gen_wval({32'h0,ienable_rd  }, HWDATA, ahb_be);
                  TIME            : time_reg     <= gen_wval(       time_reg     , HWDATA, ahb_be);
                  default         : begin //all other addresses are considered 'timecmp'
-                                       timecmp_reg[timer_idx(ahb_waddr,TIMECMP)] <= gen_wval(timecmp_reg[timer_idx(ahb_waddr,TIMECMP)], HWDATA, ahb_be);
+                                       timecmp_reg[timer_idx_reg] <= gen_wval(timecmp_reg[timer_idx_reg], HWDATA, ahb_be);
 
                                        //a write to timecmp also clears the interrupt-pending bit
-                                       ipending_wr[timer_idx(ahb_waddr,TIMECMP)] <= 1'b0; 
+                                       ipending_wr[timer_idx_reg] <= 1'b0; 
                                    end
               endcase
         end
@@ -396,7 +405,7 @@ generate
   begin
 
       always @(posedge HCLK)
-        case (HADDR & address_mask())
+        case (ahb_addr & address_mask())
           PRESCALE: HRDATA <= prescale_reg;
           RESERVED: HRDATA <= 32'h0;
           IENABLE : HRDATA <= ienable_rd;
@@ -404,8 +413,8 @@ generate
           TIME    : HRDATA <= time_reg[31: 0];
           TIME_MSB: HRDATA <= time_reg[63:32];
           default : case (HADDR[2])
-                      1'b0: HRDATA <= timecmp_reg[timer_idx(HADDR,TIMECMP)][31: 0];
-                      1'b1: HRDATA <= timecmp_reg[timer_idx(HADDR,TIMECMP)][63:32];
+                      1'b0: HRDATA <= timecmp_reg[timer_idx_reg][31: 0];
+                      1'b1: HRDATA <= timecmp_reg[timer_idx_reg][63:32];
                     endcase
         endcase
 
@@ -414,15 +423,28 @@ generate
   begin
 
       always @(posedge HCLK)
-        case (HADDR & address_mask())
-          PRESCALE        : HRDATA <= {32'h0    ,prescale_reg};
+        case (ahb_addr & address_mask())
+          PRESCALE        : HRDATA <= {32'h0      ,prescale_reg};
           IPENDING_IENABLE: HRDATA <= {ipending_rd, ienable_rd};
           TIME            : HRDATA <= time_reg;
-          default         : HRDATA <= timecmp_reg[timer_idx(HADDR,TIMECMP)];
+          default         : HRDATA <= timecmp_reg[timer_idx_reg];
         endcase
 
   end
 endgenerate
+
+
+  /*
+   * AHB Response
+   */
+  assign HRESP = HRESP_OKAY; //Never an error
+
+  //Read cycles have 1 wait cycle
+  always @(posedge HCLK, negedge HRESETn)
+    if      (!HRESETn            ) HREADYOUT <= 1'b1;
+    else if ( ahb_rd && HREADYOUT) HREADYOUT <= 1'b0;
+    else                           HREADYOUT <= 1'b1;
+
 
 
   /*
