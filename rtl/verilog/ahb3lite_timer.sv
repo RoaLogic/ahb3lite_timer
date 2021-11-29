@@ -316,7 +316,7 @@ generate
 
             //check timecmp and set ipending bits
             for (int idx=0; idx<TIMERS; idx++)
-              ipending_wr[idx] <= ipending_wr[idx] | (enabled & (timecmp_reg[idx] == time_reg));
+              ipending_wr[idx] <= ipending_wr[idx] | (enabled & (timecmp_reg[idx] <= time_reg));
 
             //AHB writes overrule normal activity
             if (HREADY && ahb_we)
