@@ -72,7 +72,9 @@
  */
 
 
-module ahb3lite_timer #(
+module ahb3lite_timer
+import ahb3lite_pkg::*;
+#(
   //AHB Parameters
   parameter HADDR_SIZE = 32,
   parameter HDATA_SIZE = 32,
@@ -106,8 +108,6 @@ module ahb3lite_timer #(
   //
   // Constants
   //
-  import ahb3lite_pkg::*;
-
   localparam BE_SIZE = (HDATA_SIZE+7)/8;
 
 /*
@@ -208,14 +208,14 @@ module ahb3lite_timer #(
 
     //get number of active lanes for a 1024bit databus (max width) for this HSIZE
     case (hsize)
-       HSIZE_B1024: full_be = 'hffff_ffff_ffff_ffff_ffff_ffff_ffff_ffff; 
-       HSIZE_B512 : full_be = 'hffff_ffff_ffff_ffff;
-       HSIZE_B256 : full_be = 'hffff_ffff;
-       HSIZE_B128 : full_be = 'hffff;
-       HSIZE_DWORD: full_be = 'hff;
-       HSIZE_WORD : full_be = 'hf;
-       HSIZE_HWORD: full_be = 'h3;
-       default    : full_be = 'h1;
+       HSIZE_B1024: full_be = 128'hffff_ffff_ffff_ffff_ffff_ffff_ffff_ffff;
+       HSIZE_B512 : full_be = 128'hffff_ffff_ffff_ffff;
+       HSIZE_B256 : full_be = 128'hffff_ffff;
+       HSIZE_B128 : full_be = 128'hffff;
+       HSIZE_DWORD: full_be = 128'hff;
+       HSIZE_WORD : full_be = 128'hf;
+       HSIZE_HWORD: full_be = 128'h3;
+       default    : full_be = 128'h1;
     endcase
 
     //generate masked address
